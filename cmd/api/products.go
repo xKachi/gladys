@@ -21,5 +21,5 @@ func (app *application) showProductHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Fprintf(w, "show product detail %id\n", id)
+	fmt.Fprintf(w, "show product details %d\n", id)
 }
