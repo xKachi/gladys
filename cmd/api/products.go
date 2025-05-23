@@ -9,7 +9,25 @@ import (
 )
 
 func (app *application) createProductHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new product")
+
+	var input struct {
+		Title       string  `json:"title"`
+		Description string  `json:"description"`
+		Price       float64 `json:"price"`
+		Currency    string  `json:"currency"`
+		Category    string  `json:"category"` // e.g., "ebook", "course"
+		FileURL     string  `json:"fileUrl"`  // URL to the digital file
+	}
+
+	err := app.readJSON(w, r, &input)
+
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// Dump the contents of the input struct in a HTTP response
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) showProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +55,7 @@ func (app *application) showProductHandler(w http.ResponseWriter, r *http.Reques
 	// Encode the struct to JSON and send it as the HTTP response.
 	err = app.writeJSON(w, http.StatusOK, envelope{"product": product}, nil)
 	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		// Use the new serverErrorResponse() helper.
+		app.serverErrorResponse(w, r, err)
 	}
 }
