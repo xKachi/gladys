@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/xKachi/gladys/internal/data"
+	"github.com/xKachi/gladys/internal/validator"
 )
 
 func (app *application) createProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +27,23 @@ func (app *application) createProductHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Dump the contents of the input struct in a HTTP response
+	product := &data.Product{
+		Title:       input.Title,
+		Description: input.Description,
+		Price:       input.Price,
+		Currency:    input.Currency,
+		Category:    input.Category,
+	}
+
+	v := validator.New()
+
+	// Call the ValidateMovie() function and return a response containing the errors if
+	// any of the checks fail.
+	if data.ValidateMovie(v, product); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	fmt.Fprintf(w, "%+v\n", input)
 }
 
